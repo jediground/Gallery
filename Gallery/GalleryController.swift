@@ -66,7 +66,6 @@ extension GalleryController: UICollectionViewDataSource, UICollectionViewDelegat
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GalleryCell.identifier, for: indexPath) as! GalleryCell
         cell.populate(data[indexPath.item])
         cell.contentView.backgroundColor = colors[indexPath.item]
-        print("item: \(indexPath.item)")
         return cell
     }
 
@@ -100,6 +99,7 @@ final class GalleryCell: UICollectionViewCell {
     }
     
     private func setup() {
+        clipsToBounds = true
         contentView.addSubview(posterView)
         posterView.translatesAutoresizingMaskIntoConstraints = false
         posterView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
@@ -217,7 +217,6 @@ public struct ParallaxAttributesAnimator {
         if abs(position) >= 1 {
             // Reset views that are invisible.
             contentView.frame = attributes.bounds
-            print("#1")
         } else if direction == .horizontal {
             let width = collectionView.frame.width
             let transitionX = -(width * speed * position)
@@ -225,7 +224,6 @@ public struct ParallaxAttributesAnimator {
             let newFrame = attributes.bounds.applying(transform)
             
             contentView.frame = newFrame
-            print("#2")
         } else {
             let height = collectionView.frame.height
             let transitionY = -(height * speed * position)
@@ -237,35 +235,6 @@ public struct ParallaxAttributesAnimator {
             // We don't use transform here since there's an issue if layoutSubviews is called
             // for every cell due to layout changes in binding method.
             contentView.frame = newFrame
-            print("#3")
         }
-    }
-}
-
-
-
-public struct PageAttributesAnimator {
-    /// The max scale that would be applied to the current cell. 0 means no scale. 0.2 by default.
-    public var scaleRate: CGFloat
-    
-    public init(scaleRate: CGFloat = 0.2) {
-        self.scaleRate = scaleRate
-    }
-    
-    func animate(collectionView: UICollectionView, attributes: GalleryCollectionViewLayoutAttributes) {
-        let position = attributes.middleOffset
-        let contentOffset = collectionView.contentOffset
-        let itemOrigin = attributes.frame.origin
-        let scaleFactor = scaleRate * min(position, 0) + 1.0
-        var transform = CGAffineTransform(scaleX: scaleFactor, y: scaleFactor)
-        
-        if attributes.scrollDirection == .horizontal {
-            transform = transform.concatenating(CGAffineTransform(translationX: position < 0 ? contentOffset.x - itemOrigin.x : 0, y: 0))
-        } else {
-            transform = transform.concatenating(CGAffineTransform(translationX: 0, y: position < 0 ? contentOffset.y - itemOrigin.y : 0))
-        }
-        
-        attributes.transform = transform
-        attributes.zIndex = attributes.indexPath.row
     }
 }

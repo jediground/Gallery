@@ -63,6 +63,8 @@ public final class PosterView: UIView {
     }
     
     private func setup() {
+        clipsToBounds = true
+
         scrollView.frame = bounds
         scrollView.delegate = self
         addSubview(scrollView)
