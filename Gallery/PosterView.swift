@@ -6,7 +6,6 @@
 //  Copyright © 2018 Shaw. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 public protocol PosterDisplayable: class {
@@ -38,7 +37,7 @@ public final class PosterView: UIView {
         return view
     }()
     
-    private let displayView: PosterDisplayView = {
+    public let displayView: PosterDisplayView = {
         let view = PosterView.displayClass.init()
         view.contentMode = .scaleAspectFill
         view.clipsToBounds = true
@@ -58,13 +57,13 @@ public final class PosterView: UIView {
     
     public override var frame: CGRect {
         didSet {
-            centerContent()
+            centerContents()
         }
     }
     
     private func setup() {
         clipsToBounds = true
-
+        
         scrollView.frame = bounds
         scrollView.delegate = self
         addSubview(scrollView)
@@ -92,10 +91,10 @@ public final class PosterView: UIView {
         displayView.frame = CGRect(origin: .zero, size: size)
         scrollView.contentSize = size
         
-        centerContent()
+        centerContents()
     }
     
-    private func centerContent() {
+    private func centerContents() {
         var top: CGFloat = 0, left: CGFloat = 0
         if scrollView.contentSize.height < scrollView.bounds.height {
             top = (scrollView.bounds.height - scrollView.contentSize.height) * 0.5
@@ -128,7 +127,7 @@ extension PosterView: UIScrollViewDelegate {
     }
     
     public func scrollViewDidZoom(_ scrollView: UIScrollView) {
-        centerContent()
+        centerContents()
     }
 }
 
