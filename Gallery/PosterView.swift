@@ -81,6 +81,10 @@ public final class PosterView: UIView {
         super.layoutSubviews()
         
         scrollView.frame = bounds
+        if scrollView.zoomScale > 1 {
+            scrollView.setZoomScale(1, animated: true)
+        }
+        
         let height: CGFloat
         if let image = displayView.image {
             height = image.size.height * bounds.width / image.size.width
