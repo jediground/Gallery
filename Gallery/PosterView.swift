@@ -54,10 +54,10 @@ public final class PosterView: UIView {
         super.init(coder: aDecoder)
         setup()
     }
-    
-    public override var frame: CGRect {
+
+    public override var bounds: CGRect {
         didSet {
-            centerContents()
+            layoutContents()
         }
     }
     
@@ -71,19 +71,15 @@ public final class PosterView: UIView {
         displayView.frame = bounds
         scrollView.addSubview(displayView)
         
-        let click = UITapGestureRecognizer(target: self, action: #selector(handleDoubleClick(sender:)))
-        click.numberOfTapsRequired = 2
-        click.numberOfTouchesRequired = 1
-        addGestureRecognizer(click)
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(handleDoubleTap(sender:)))
+        doubleTap.numberOfTapsRequired = 2
+        doubleTap.numberOfTouchesRequired = 1
+        addGestureRecognizer(doubleTap)
     }
     
-    public override func layoutSubviews() {
-        super.layoutSubviews()
-        
+    private func layoutContents() {
+        scrollView.zoomScale = 1
         scrollView.frame = bounds
-        if scrollView.zoomScale > 1 {
-            scrollView.setZoomScale(1, animated: true)
-        }
         
         let height: CGFloat
         if let image = displayView.image {
@@ -109,7 +105,7 @@ public final class PosterView: UIView {
         scrollView.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
     }
     
-    @objc private func handleDoubleClick(sender: UITapGestureRecognizer) {
+    @objc private func handleDoubleTap(sender: UITapGestureRecognizer) {
         if scrollView.zoomScale > 1 {
             scrollView.setZoomScale(1, animated: true)
         } else {
@@ -168,7 +164,7 @@ public extension PosterView {
                 layer.add(CATransition(), forKey: kCATransition)
             }
             
-            setNeedsLayout()
+            layoutContents()
         }
     }
 }
