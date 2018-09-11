@@ -15,12 +15,7 @@ final class GalleryController: UIViewController {
         let images = (0...10).map({ UIImage(named: "unsplash-\($0).jpg", in: bundle, compatibleWith: nil) })
         return images.compactMap({ $0 })
     }()
-    
-    let colors: [UIColor] = {
-        let dd = (0...10).map({ _ in UIColor.any })
-        return dd
-    }()
-    
+
     private let collectionView: UICollectionView = {
         let layout = GalleryCollectionViewLayout()
         layout.scrollDirection = .horizontal
@@ -65,7 +60,6 @@ extension GalleryController: UICollectionViewDataSource, UICollectionViewDelegat
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: GalleryCell.identifier, for: indexPath) as! GalleryCell
         cell.populate(data[indexPath.item])
-        cell.contentView.backgroundColor = colors[indexPath.item]
         return cell
     }
 
@@ -117,124 +111,39 @@ final class GalleryCell: UICollectionViewCell {
 
 // See: https://github.com/KelvinJin/AnimatedCollectionViewLayout
 final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
+    override init() {
+        super.init()
+        scrollDirection = .horizontal
+    }
     
-    /// The animator that would actually handle the transitions.
-    public var animator = ParallaxAttributesAnimator()
-    
-    /// Overrided so that we can store extra information in the layout attributes.
-    public override class var layoutAttributesClass: AnyClass { return GalleryCollectionViewLayoutAttributes.self }
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        scrollDirection = .horizontal
+    }
     
     public override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
-        return attributes.compactMap { $0.copy() as? GalleryCollectionViewLayoutAttributes }.map { transformLayoutAttributes($0) }
+        return attributes.map { transformLayoutAttributes($0) }
     }
     
     public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
         // We have to return true here so that the layout attributes would be recalculated
         // everytime we scroll the collection view.
-        return true
+        return collectionView!.bounds != newBounds
     }
     
-    private func transformLayoutAttributes(_ attributes: GalleryCollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
+    private func transformLayoutAttributes(_ attributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         guard let collectionView = collectionView else { return attributes }
         
-        let oneAttributes = attributes
-        let distance: CGFloat
-        let itemOffset: CGFloat
-        
-        if scrollDirection == .horizontal {
-            distance = collectionView.frame.width
-            itemOffset = oneAttributes.center.x - collectionView.contentOffset.x
-            oneAttributes.startOffset = (oneAttributes.frame.origin.x - collectionView.contentOffset.x) / oneAttributes.frame.width
-            oneAttributes.endOffset = (oneAttributes.frame.origin.x - collectionView.contentOffset.x - collectionView.frame.width) / oneAttributes.frame.width
+        let endOffset = (attributes.frame.origin.x - collectionView.contentOffset.x - collectionView.frame.width) / attributes.frame.width
+        if endOffset < 0 && endOffset > -1 {
+            let translationX = (1 - pow(abs(endOffset), 3.0)) * 20
+            attributes.transform = CGAffineTransform(translationX: translationX, y: 0)
+            attributes.alpha = 1.0 * abs(endOffset)
         } else {
-            distance = collectionView.frame.height
-            itemOffset = oneAttributes.center.y - collectionView.contentOffset.y
-            oneAttributes.startOffset = (oneAttributes.frame.origin.y - collectionView.contentOffset.y) / oneAttributes.frame.height
-            oneAttributes.endOffset = (oneAttributes.frame.origin.y - collectionView.contentOffset.y - collectionView.frame.height) / oneAttributes.frame.height
+            attributes.transform = .identity
+            attributes.alpha = 1.0
         }
-        
-        oneAttributes.scrollDirection = scrollDirection
-        oneAttributes.middleOffset = itemOffset / distance - 0.5
-        
-        // Cache the contentView since we're going to use it a lot.
-        if oneAttributes.contentView == nil,
-            let c = collectionView.cellForItem(at: attributes.indexPath)?.contentView {
-            oneAttributes.contentView = c
-        }
-        
-        animator.animate(collectionView: collectionView, attributes: oneAttributes)
-        
-        return oneAttributes
-    }
-}
-
-final class GalleryCollectionViewLayoutAttributes: UICollectionViewLayoutAttributes {
-    public var contentView: UIView?
-    public var scrollDirection: UICollectionViewScrollDirection = .vertical
-    
-    public var startOffset: CGFloat = 0
-    public var middleOffset: CGFloat = 0
-    public var endOffset: CGFloat = 0
-    
-    public override func copy(with zone: NSZone? = nil) -> Any {
-        let copy = super.copy(with: zone) as! GalleryCollectionViewLayoutAttributes
-        copy.contentView = contentView
-        copy.scrollDirection = scrollDirection
-        copy.startOffset = startOffset
-        copy.middleOffset = middleOffset
-        copy.endOffset = endOffset
-        return copy
-    }
-    
-    public override func isEqual(_ object: Any?) -> Bool {
-        guard let o = object as? GalleryCollectionViewLayoutAttributes else { return false }
-        
-        return super.isEqual(o)
-            && o.contentView == contentView
-            && o.scrollDirection == scrollDirection
-            && o.startOffset == startOffset
-            && o.middleOffset == middleOffset
-            && o.endOffset == endOffset
-    }
-}
-
-public struct ParallaxAttributesAnimator {
-    /// The higher the speed is, the more obvious the parallax.
-    /// It's recommended to be in range [0, 1] where 0 means no parallax. 0.5 by default.
-    public var speed: CGFloat
-    
-    public init(speed: CGFloat = 0.5) {
-        self.speed = speed
-    }
-    
-    func animate(collectionView: UICollectionView, attributes: GalleryCollectionViewLayoutAttributes) {
-        let position = attributes.middleOffset
-        let direction = attributes.scrollDirection
-        
-        guard let contentView = attributes.contentView else { return }
-        
-        if abs(position) >= 1 {
-            // Reset views that are invisible.
-            contentView.frame = attributes.bounds
-        } else if direction == .horizontal {
-            let width = collectionView.frame.width
-            let transitionX = -(width * speed * position)
-            let transform = CGAffineTransform(translationX: transitionX, y: 0)
-            let newFrame = attributes.bounds.applying(transform)
-            
-            contentView.frame = newFrame
-        } else {
-            let height = collectionView.frame.height
-            let transitionY = -(height * speed * position)
-            let transform = CGAffineTransform(translationX: 0, y: transitionY)
-            
-            // By default, the content view takes all space in the cell
-            let newFrame = attributes.bounds.applying(transform)
-            
-            // We don't use transform here since there's an issue if layoutSubviews is called
-            // for every cell due to layout changes in binding method.
-            contentView.frame = newFrame
-        }
+        return attributes
     }
 }
