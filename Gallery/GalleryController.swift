@@ -127,14 +127,15 @@ final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
     private func transformLayoutAttributes(_ attributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         guard let collectionView = collectionView else { return attributes }
         
-        let endOffset = (attributes.frame.origin.x - collectionView.contentOffset.x - collectionView.frame.width) / attributes.frame.width
-        if endOffset < 0 && endOffset > -1 {
+        // The ratio of the distance between the **start** of the cell and the end of the collectionView and the height/width of the cell depending on the scrollDirection. It's 0 when the **start** of the cell aligns the end of the collectionView. It gets positive when the cell moves towards the scrolling direction (right/down) while getting negative when moves opposite.
+        let endOffsetRatio = (attributes.frame.origin.x - collectionView.contentOffset.x - collectionView.frame.width) / attributes.frame.width
+        if endOffsetRatio < 0 && endOffsetRatio > -1 {
             if scrollDirection == .horizontal {
-                attributes.transform = CGAffineTransform(translationX: (1 - pow(abs(endOffset), 3.0)) * pageSpacing, y: 0)
+                attributes.transform = CGAffineTransform(translationX: (1 - pow(abs(endOffsetRatio), 3.0)) * pageSpacing, y: 0)
             } else {
-                attributes.transform = CGAffineTransform(translationX: 0, y: (1 - pow(abs(endOffset), 3.0)) * pageSpacing)
+                attributes.transform = CGAffineTransform(translationX: 0, y: (1 - pow(abs(endOffsetRatio), 3.0)) * pageSpacing)
             }
-            attributes.alpha = 1.0 * abs(endOffset)
+            attributes.alpha = 1.0 * abs(endOffsetRatio)
         } else {
             attributes.transform = .identity
             attributes.alpha = 1.0
