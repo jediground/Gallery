@@ -18,7 +18,7 @@ final class GalleryController: UIViewController {
 
     private let collectionView: UICollectionView = {
         let layout = GalleryCollectionViewLayout()
-        layout.scrollDirection = .vertical
+        layout.scrollDirection = .horizontal
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.showsHorizontalScrollIndicator = false
         view.showsVerticalScrollIndicator = false
@@ -112,7 +112,7 @@ final class GalleryCell: UICollectionViewCell {
 // See: https://github.com/KelvinJin/AnimatedCollectionViewLayout
 final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
     public var pageSpacing: CGFloat = 20
-    
+
     public override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
         return attributes.map { transformLayoutAttributes($0) }
@@ -127,19 +127,29 @@ final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
     private func transformLayoutAttributes(_ attributes: UICollectionViewLayoutAttributes) -> UICollectionViewLayoutAttributes {
         guard let collectionView = collectionView else { return attributes }
         
-        // The ratio of the distance between the **start** of the cell and the end of the collectionView and the height/width of the cell depending on the scrollDirection. It's 0 when the **start** of the cell aligns the end of the collectionView. It gets positive when the cell moves towards the scrolling direction (right/down) while getting negative when moves opposite.
-        let endOffsetRatio = (attributes.frame.origin.x - collectionView.contentOffset.x - collectionView.frame.width) / attributes.frame.width
-        if endOffsetRatio < 0 && endOffsetRatio > -1 {
-            if scrollDirection == .horizontal {
-                attributes.transform = CGAffineTransform(translationX: (1 - pow(abs(endOffsetRatio), 3.0)) * pageSpacing, y: 0)
-            } else {
-                attributes.transform = CGAffineTransform(translationX: 0, y: (1 - pow(abs(endOffsetRatio), 3.0)) * pageSpacing)
-            }
-            attributes.alpha = 1.0 * abs(endOffsetRatio)
+        let distance: CGFloat
+        let itemOffset: CGFloat
+        if scrollDirection == .horizontal {
+            distance = collectionView.frame.width
+            itemOffset = attributes.center.x - collectionView.contentOffset.x
         } else {
-            attributes.transform = .identity
-            attributes.alpha = 1.0
+            distance = collectionView.frame.height
+            itemOffset = attributes.center.y - collectionView.contentOffset.y
         }
+        
+        // The ratio of the distance between the center of the cell and the center of the collectionView and the height/width of the cell depending on the scrollDirection. It's 0 when the center of the cell aligns the center of the collectionView. It gets positive when the cell moves towards the scrolling direction (right/down) while getting negative when moves opposite.
+        let ratio = itemOffset / distance - 0.5
+        
+        if abs(ratio) < 1 {
+            if scrollDirection == .horizontal {
+                let transform = CGAffineTransform(translationX: pageSpacing * ratio, y: 0)
+                attributes.frame = attributes.frame.applying(transform)
+            } else {
+                let transform = CGAffineTransform(translationX: 0, y: pageSpacing * ratio)
+                attributes.frame = attributes.frame.applying(transform)
+            }
+        }
+        
         return attributes
     }
 }
