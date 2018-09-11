@@ -18,7 +18,7 @@ final class GalleryController: UIViewController {
 
     private let collectionView: UICollectionView = {
         let layout = GalleryCollectionViewLayout()
-        layout.scrollDirection = .horizontal
+        layout.scrollDirection = .vertical
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.showsHorizontalScrollIndicator = false
         view.showsVerticalScrollIndicator = false
@@ -68,11 +68,11 @@ extension GalleryController: UICollectionViewDataSource, UICollectionViewDelegat
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return .leastNormalMagnitude
+        return .leastNonzeroMagnitude
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        return .leastNormalMagnitude
+        return .leastNonzeroMagnitude
     }
 }
 
@@ -111,15 +111,7 @@ final class GalleryCell: UICollectionViewCell {
 
 // See: https://github.com/KelvinJin/AnimatedCollectionViewLayout
 final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
-    override init() {
-        super.init()
-        scrollDirection = .horizontal
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        scrollDirection = .horizontal
-    }
+    public var pageSpacing: CGFloat = 20
     
     public override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
@@ -137,8 +129,11 @@ final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
         
         let endOffset = (attributes.frame.origin.x - collectionView.contentOffset.x - collectionView.frame.width) / attributes.frame.width
         if endOffset < 0 && endOffset > -1 {
-            let translationX = (1 - pow(abs(endOffset), 3.0)) * 20
-            attributes.transform = CGAffineTransform(translationX: translationX, y: 0)
+            if scrollDirection == .horizontal {
+                attributes.transform = CGAffineTransform(translationX: (1 - pow(abs(endOffset), 3.0)) * pageSpacing, y: 0)
+            } else {
+                attributes.transform = CGAffineTransform(translationX: 0, y: (1 - pow(abs(endOffset), 3.0)) * pageSpacing)
+            }
             attributes.alpha = 1.0 * abs(endOffset)
         } else {
             attributes.transform = .identity
