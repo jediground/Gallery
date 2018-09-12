@@ -115,7 +115,7 @@ final class GalleryCollectionViewLayout: UICollectionViewFlowLayout {
 
     public override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         guard let attributes = super.layoutAttributesForElements(in: rect) else { return nil }
-        return attributes.map { transformLayoutAttributes($0) }
+        return attributes.map { transformLayoutAttributes($0.copy() as! UICollectionViewLayoutAttributes) }
     }
     
     public override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
