@@ -44,3 +44,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 }
 
+public func random(in range: Range<Int>) -> Int {
+    let count = UInt32(range.upperBound - range.lowerBound)
+    return Int(arc4random_uniform(count)) + range.lowerBound
+}
+
+public extension UIKit.UIColor {
+    public class var any: UIColor {
+        let red   = CGFloat(random(in: 0 ..< 255)) / 255.0
+        let green = CGFloat(random(in: 0 ..< 255)) / 255.0
+        let blue  = CGFloat(random(in: 0 ..< 255)) / 255.0
+        return UIColor(red: red, green: green, blue: blue, alpha: 1)
+    }
+}
