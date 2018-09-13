@@ -8,32 +8,36 @@
 
 import UIKit
 
+public protocol PosterDisplayable: class {
+    var image: UIImage? { get set }
+}
+
+extension UIImageView: PosterDisplayable {}
+
 open class GalleryViewCell: UIView {
     public typealias DisplayView = UIView & PosterDisplayable
     open static var displayViewClass: DisplayView.Type = UIImageView.self
     
-    internal var page: Int = -1
+    open internal(set) var index: Int = -1
     internal var reusable: Bool = true
 
     private let scrollView: UIScrollView = {
         let view = UIScrollView(frame: .zero)
-        view.bouncesZoom = true
-        view.scrollsToTop = true
-        view.showsVerticalScrollIndicator = false
-        view.showsHorizontalScrollIndicator = false
-        view.alwaysBounceHorizontal = false
-        view.alwaysBounceVertical = false
-        view.isPagingEnabled = false
-        view.isMultipleTouchEnabled = true
-        view.isUserInteractionEnabled = true
-        view.delaysContentTouches = false
         view.clipsToBounds = true
+        view.scrollsToTop = true
+        view.bounces = true
+        view.bouncesZoom = true
+        view.alwaysBounceVertical = false
+        view.alwaysBounceHorizontal = false
+        view.showsVerticalScrollIndicator = true
+        view.showsHorizontalScrollIndicator = false
         view.contentInsetAdjustmentBehavior = .never
+        view.translatesAutoresizingMaskIntoConstraints = false
         view.maximumZoomScale = 3
         view.minimumZoomScale = 1
         return view
     }()
-    
+
     open let displayView: DisplayView = {
         let view = GalleryViewCell.displayViewClass.init()
         view.contentMode = .scaleAspectFill
@@ -52,10 +56,9 @@ open class GalleryViewCell: UIView {
         setup()
     }
 
-    open override var frame: CGRect {
-        didSet {
-            layoutContents()
-        }
+    open override func layoutSubviews() {
+        super.layoutSubviews()
+        layoutContents()
     }
 
     private func setup() {
@@ -95,6 +98,19 @@ open class GalleryViewCell: UIView {
             left = (scrollView.bounds.width - scrollView.contentSize.width) * 0.5
         }
         scrollView.contentInset = UIEdgeInsets(top: top, left: left, bottom: top, right: left)
+    }
+    
+    func onDoubleTap(sender: UITapGestureRecognizer) {
+        if scrollView.zoomScale > 1 {
+            scrollView.setZoomScale(1, animated: true)
+        } else {
+            let scale = scrollView.maximumZoomScale
+            let width = bounds.width / scale
+            let height = bounds.height / scale
+            let touchPoint = sender.location(in: displayView)
+            let rect = CGRect(x: touchPoint.x - width * 0.5, y: touchPoint.y - height * 0.5, width: width, height: height)
+            scrollView.zoom(to: rect, animated: true)
+        }
     }
 }
 

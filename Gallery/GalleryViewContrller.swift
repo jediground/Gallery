@@ -18,7 +18,6 @@ internal final class GalleryViewContrller: UIViewController {
         return images.compactMap({ $0 })
     }()
 
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUserInterface()
@@ -27,22 +26,37 @@ internal final class GalleryViewContrller: UIViewController {
     
     private func setupUserInterface() {
         galleryView.dataSource = self
+        galleryView.delegate = self
     }
     
     private func setupEventsHandler() {
     }
 }
 
-extension GalleryViewContrller: GalleryViewPosterDataSource {
-    var numberOfItems: Int {
+extension GalleryViewContrller: GalleryViewPosterDataSource, GalleryViewPosterDelegate {
+    func numberOfElements(in galleryView: GalleryView) -> Int {
         return data.count
     }
     
-    func loadCell(at index: Int, forPosterDisplayView view: GalleryViewCell.DisplayView) {
-        let image = data[index]
-        if view.image != image {
-            print("load cell: \(index)")
-            view.image = image
+    func galleryView(_ galleryView: GalleryView, loadContentsFor cell: GalleryViewCell) {
+        let image = data[cell.index]
+        if cell.image != image {
+            print("loadContentsFor cell: \(cell.index)")
+            cell.image = image
         }
+    }
+    
+    func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int) {
+        print("didUpdatePageTo: \(index)")
+    }
+    
+    func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, in cell: GalleryViewCell) {
+        let rect = cell.convert(cell.displayView.frame, from: cell.displayView)
+        print("touchsIndisplayView: \(rect.contains(location))")
+    }
+    
+    func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell) {
+        let rect = cell.convert(cell.displayView.frame, from: cell.displayView)
+        print("longPressIndisplayView: \(rect.contains(location))")
     }
 }
