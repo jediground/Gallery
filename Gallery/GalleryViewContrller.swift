@@ -53,10 +53,17 @@ extension GalleryViewContrller: GalleryViewPosterDataSource, GalleryViewPosterDe
     func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, in cell: GalleryViewCell) {
         let rect = cell.convert(cell.displayView.frame, from: cell.displayView)
         print("touchsIndisplayView: \(rect.contains(location))")
+        if rect.contains(location) {
+            presentingViewController?.dismiss(animated: true, completion: nil)
+        }
     }
     
     func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell) {
         let rect = cell.convert(cell.displayView.frame, from: cell.displayView)
         print("longPressIndisplayView: \(rect.contains(location))")
+    }
+    
+    func didDismiss(_ galleryView: GalleryView) {
+        presentingViewController?.dismiss(animated: false, completion: nil)
     }
 }

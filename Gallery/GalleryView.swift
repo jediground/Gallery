@@ -18,12 +18,15 @@ public protocol GalleryViewPosterDelegate: class {
     func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int)
     func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, `in` cell: GalleryViewCell)
     func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell)
+    
+    func didDismiss(_ galleryView: GalleryView)
 }
 
 extension GalleryViewPosterDelegate {
     func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int) {}
     func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, `in` cell: GalleryViewCell) {}
     func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell) {}
+    func didDismiss(_ galleryView: GalleryView) {}
 }
 
 open class GalleryView: UIView {
@@ -68,6 +71,22 @@ open class GalleryView: UIView {
         return view
     }()
     
+    private let backgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    @IBInspectable override open var backgroundColor: UIColor? {
+        get {
+            return backgroundView.backgroundColor
+        }
+        set {
+            backgroundView.backgroundColor = newValue
+        }
+    }
+    
     private var scrollViewWidthAnchor: NSLayoutConstraint!
     
     public override init(frame: CGRect) {
@@ -86,7 +105,11 @@ open class GalleryView: UIView {
     }
     
     private func setup() {
-        backgroundColor = .black
+        addSubview(backgroundView)
+        backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
+        backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
+        backgroundView.topAnchor.constraint(equalTo: topAnchor).isActive = true
+        backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
         
         scrollView.delegate = self
         addSubview(scrollView)
@@ -107,8 +130,8 @@ open class GalleryView: UIView {
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(sender:)))
         addGestureRecognizer(longPress)
         
-//        let pan = UIPanGestureRecognizer(target: self, action: #selector(onPan(sender:)))
-//        addGestureRecognizer(pan)
+        panGesture = UIPanGestureRecognizer(target: self, action: #selector(onPan(sender:)))
+        addGestureRecognizer(panGesture)
     }
     
     private func reloadData() {
@@ -126,6 +149,13 @@ open class GalleryView: UIView {
     }
     
     private var reusableCells: [GalleryViewCell] = []
+
+    private var panGesture: UIPanGestureRecognizer!
+    open var disablePanToDismiss: Bool = false {
+        didSet {
+            panGesture.isEnabled = !disablePanToDismiss
+        }
+    }
 }
 
 extension GalleryView: UIScrollViewDelegate {
@@ -206,6 +236,37 @@ private extension GalleryView {
     }
     
     @objc private func onPan(sender: UIPanGestureRecognizer) {
-        print("\(NSString(string: #file).lastPathComponent):\(#line):\(String(describing: self)):\(#function)...")
+        switch sender.state {
+        case .changed:
+            let translation = sender.translation(in: self).y
+            let ratio = abs(translation / bounds.size.height)
+            scrollView.transform = CGAffineTransform(translationX: 0, y: translation)
+            backgroundView.alpha = 1 - ratio
+        case .ended:
+            let velocity = sender.velocity(in: self).y
+            let translation = sender.translation(in: self).y
+            let isMoveUp = velocity < 0
+            let movement = isMoveUp ? translation : -translation
+            let timeFactor = TimeInterval((bounds.size.height + movement) / bounds.size.height)
+            
+            if abs(velocity) > 1000 || abs(translation) > 100 {
+                UIView.animate(withDuration: timeFactor * 0.3, delay: 0, options: [.curveLinear, .beginFromCurrentState], animations: {
+                    self.scrollView.transform = CGAffineTransform(translationX: 0, y: self.bounds.size.height * (isMoveUp ? -1.0 : 1.0))
+                    self.backgroundView.alpha = 0
+                }, completion: { _ in
+                    self.removeFromSuperview()
+                    self.delegate?.didDismiss(self)
+                })
+            } else {
+                UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: velocity / 1000.0, options: [.curveEaseInOut, .beginFromCurrentState, .allowUserInteraction], animations: {
+                    self.scrollView.transform = .identity
+                    self.backgroundView.alpha = 1
+                }, completion: { _ in
+                })
+            }
+        default:
+            self.scrollView.transform = .identity
+            self.backgroundView.alpha = 1
+        }
     }
 }
