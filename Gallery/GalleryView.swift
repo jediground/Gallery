@@ -245,11 +245,15 @@ private extension GalleryView {
         case .ended:
             let velocity = sender.velocity(in: self).y
             let translation = sender.translation(in: self).y
-            let isMoveUp = velocity < 0
-            let movement = isMoveUp ? translation : -translation
-            let timeFactor = TimeInterval((bounds.size.height + movement) / bounds.size.height)
             
             if abs(velocity) > 1000 || abs(translation) > 100 {
+                // -∞, -50, 50, +∞
+                // if [-∞, -50], MoveUp
+                // elif [-50, 50] && translation < 0, MoveUp
+                let isMoveUp = velocity < -50 || (abs(velocity) < 50 && translation < 0)
+                let movement = isMoveUp ? translation : -translation
+                let timeFactor = TimeInterval((bounds.size.height + movement) / bounds.size.height)
+                
                 UIView.animate(withDuration: timeFactor * 0.3, delay: 0, options: [.curveLinear, .beginFromCurrentState], animations: {
                     self.scrollView.transform = CGAffineTransform(translationX: 0, y: self.bounds.size.height * (isMoveUp ? -1.0 : 1.0))
                     self.backgroundView.alpha = 0
