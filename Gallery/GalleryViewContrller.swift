@@ -17,27 +17,13 @@ internal final class GalleryViewContrller: UIViewController {
         let images = (0...10).map({ UIImage(named: "image-\($0).jpg", in: bundle, compatibleWith: nil) })
         return images.compactMap({ $0 })
     }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        setupUserInterface()
-        setupEventsHandler()
-    }
-    
-    private func setupUserInterface() {
-        galleryView.dataSource = self
-        galleryView.delegate = self
-    }
-    
-    private func setupEventsHandler() {
-    }
 }
 
 extension GalleryViewContrller: GalleryViewPosterDataSource, GalleryViewPosterDelegate {
     func numberOfElements(in galleryView: GalleryView) -> Int {
         return data.count
     }
-    
+
     func galleryView(_ galleryView: GalleryView, loadContentsFor cell: GalleryViewCell) {
         let image = data[cell.index]
         if cell.image != image {
@@ -45,11 +31,11 @@ extension GalleryViewContrller: GalleryViewPosterDataSource, GalleryViewPosterDe
             cell.image = image
         }
     }
-    
+
     func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int) {
         print("didUpdatePageTo: \(index)")
     }
-    
+
     func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, in cell: GalleryViewCell) {
         let rect = cell.convert(cell.displayView.frame, from: cell.displayView)
         print("touchsIndisplayView: \(rect.contains(location))")
@@ -57,12 +43,12 @@ extension GalleryViewContrller: GalleryViewPosterDataSource, GalleryViewPosterDe
             presentingViewController?.dismiss(animated: true, completion: nil)
         }
     }
-    
+
     func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell) {
         let rect = cell.convert(cell.displayView.frame, from: cell.displayView)
         print("longPressIndisplayView: \(rect.contains(location))")
     }
-    
+
     func didDismiss(_ galleryView: GalleryView) {
         presentingViewController?.dismiss(animated: false, completion: nil)
     }

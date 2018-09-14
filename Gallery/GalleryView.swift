@@ -8,25 +8,18 @@
 
 import UIKit
 
-public protocol GalleryViewPosterDataSource: class {
-    func numberOfElements(in galleryView: GalleryView) -> Int
+@objc public protocol GalleryViewPosterDataSource {
+    @objc func numberOfElements(in galleryView: GalleryView) -> Int
     /// In one transcation may invoke this methods multiple times with same indexed cell.
-    func galleryView(_ galleryView: GalleryView, loadContentsFor cell: GalleryViewCell)
+    @objc func galleryView(_ galleryView: GalleryView, loadContentsFor cell: GalleryViewCell)
 }
 
-public protocol GalleryViewPosterDelegate: class {
-    func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int)
-    func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, `in` cell: GalleryViewCell)
-    func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell)
+@objc public protocol GalleryViewPosterDelegate {
+    @objc optional func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int)
+    @objc optional func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, `in` cell: GalleryViewCell)
+    @objc optional func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell)
     
-    func didDismiss(_ galleryView: GalleryView)
-}
-
-extension GalleryViewPosterDelegate {
-    func galleryView(_ galleryView: GalleryView, didUpdatePageTo index: Int) {}
-    func galleryView(_ galleryView: GalleryView, didSingleTappedAt location: CGPoint, `in` cell: GalleryViewCell) {}
-    func galleryView(_ galleryView: GalleryView, didLongPressedAt location: CGPoint, `in` cell: GalleryViewCell) {}
-    func didDismiss(_ galleryView: GalleryView) {}
+    @objc optional func didDismiss(_ galleryView: GalleryView)
 }
 
 open class GalleryView: UIView {
@@ -40,18 +33,18 @@ open class GalleryView: UIView {
     open private(set) var currentPage: Int = 0 {
         didSet {
             if oldValue != currentPage {
-                delegate?.galleryView(self, didUpdatePageTo: currentPage)
+                delegate?.galleryView?(self, didUpdatePageTo: currentPage)
             }
         }
     }
     
-    open weak var dataSource: GalleryViewPosterDataSource? {
+    @IBOutlet open weak var dataSource: GalleryViewPosterDataSource? {
         didSet {
             reloadData()
         }
     }
     
-    open weak var delegate: GalleryViewPosterDelegate?
+    @IBOutlet open weak var delegate: GalleryViewPosterDelegate?
     
     private let scrollView: UIScrollView = {
         let view = UIScrollView(frame: .zero)
@@ -223,7 +216,7 @@ private extension GalleryView {
     @objc private func onSingleTap(sender: UITapGestureRecognizer) {
         guard sender.state == .ended, let cell = loadedCell(of: currentPage), let delegate = delegate else { return }
         let touchPoint = sender.location(in: cell)
-        delegate.galleryView(self, didSingleTappedAt: touchPoint, in: cell)
+        delegate.galleryView?(self, didSingleTappedAt: touchPoint, in: cell)
     }
     
     @objc private func onDoubleTap(sender: UITapGestureRecognizer) {
@@ -234,7 +227,7 @@ private extension GalleryView {
     @objc private func onLongPress(sender: UILongPressGestureRecognizer) {
         guard sender.state == .ended, let cell = loadedCell(of: currentPage), let delegate = delegate else { return }
         let touchPoint = sender.location(in: cell)
-        delegate.galleryView(self, didLongPressedAt: touchPoint, in: cell)
+        delegate.galleryView?(self, didLongPressedAt: touchPoint, in: cell)
     }
     
     @objc private func onPan(sender: UIPanGestureRecognizer) {
@@ -261,7 +254,7 @@ private extension GalleryView {
                     self.backgroundView.alpha = 0
                 }, completion: { _ in
                     self.removeFromSuperview()
-                    self.delegate?.didDismiss(self)
+                    self.delegate?.didDismiss?(self)
                 })
             } else {
                 UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.9, initialSpringVelocity: velocity / 1000.0, options: [.curveEaseInOut, .beginFromCurrentState, .allowUserInteraction], animations: {

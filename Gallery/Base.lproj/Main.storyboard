@@ -32,7 +32,7 @@
             </objects>
             <point key="canvasLocation" x="260" y="98.50074962518741"/>
         </scene>
-        <!--Gallery View Contrller-->
+        <!--Data Source-->
         <scene sceneID="tne-QT-ifu">
             <objects>
                 <viewController id="BYZ-38-t0r" customClass="GalleryViewContrller" customModule="Gallery" customModuleProvider="target" sceneMemberID="viewController">
@@ -51,6 +51,10 @@
                                         <color key="value" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="GJM-le-3YW"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="lk0-3K-4ZA"/>
+                                </connections>
                             </view>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
