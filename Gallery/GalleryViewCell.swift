@@ -21,7 +21,7 @@ open class GalleryViewCell: UIView {
     open internal(set) var index: Int = -1
     internal var reusable: Bool = true
 
-    private let scrollView: UIScrollView = {
+    let scrollView: UIScrollView = {
         let view = UIScrollView(frame: .zero)
         view.clipsToBounds = true
         view.scrollsToTop = true

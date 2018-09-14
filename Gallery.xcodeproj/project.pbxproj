@@ -7,24 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		37A41BED214B5826009C0EFB /* Images.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 37A41BEC214B5826009C0EFB /* Images.bundle */; };
 		F96C0B8D2141718400F17287 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F96C0B8C2141718400F17287 /* AppDelegate.swift */; };
 		F96C0B922141718400F17287 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F96C0B902141718400F17287 /* Main.storyboard */; };
 		F96C0B942141718700F17287 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F96C0B932141718700F17287 /* Assets.xcassets */; };
 		F96C0B972141718700F17287 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F96C0B952141718700F17287 /* LaunchScreen.storyboard */; };
-		F96C0B9F2141729A00F17287 /* Unsplash.bundle in Resources */ = {isa = PBXBuildFile; fileRef = F96C0B9E2141729A00F17287 /* Unsplash.bundle */; };
 		F9CD6FB22149442600A78BCA /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9CD6FB12149442600A78BCA /* GalleryView.swift */; };
 		F9CD6FB42149443100A78BCA /* GalleryViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9CD6FB32149443100A78BCA /* GalleryViewCell.swift */; };
 		F9CD6FB821494B8700A78BCA /* GalleryViewContrller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9CD6FB721494B8700A78BCA /* GalleryViewContrller.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		37A41BEC214B5826009C0EFB /* Images.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Images.bundle; sourceTree = "<group>"; };
 		F96C0B892141718400F17287 /* Gallery.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gallery.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F96C0B8C2141718400F17287 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F96C0B912141718400F17287 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F96C0B932141718700F17287 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F96C0B962141718700F17287 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		F96C0B982141718700F17287 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F96C0B9E2141729A00F17287 /* Unsplash.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Unsplash.bundle; sourceTree = "<group>"; };
 		F9CD6FB12149442600A78BCA /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 		F9CD6FB32149443100A78BCA /* GalleryViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewCell.swift; sourceTree = "<group>"; };
 		F9CD6FB721494B8700A78BCA /* GalleryViewContrller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryViewContrller.swift; sourceTree = "<group>"; };
@@ -60,9 +60,9 @@
 		F96C0B8B2141718400F17287 /* Gallery */ = {
 			isa = PBXGroup;
 			children = (
+				37A41BEC214B5826009C0EFB /* Images.bundle */,
 				F96C0B8C2141718400F17287 /* AppDelegate.swift */,
 				F96C0B932141718700F17287 /* Assets.xcassets */,
-				F96C0B9E2141729A00F17287 /* Unsplash.bundle */,
 				F96C0B952141718700F17287 /* LaunchScreen.storyboard */,
 				F96C0B902141718400F17287 /* Main.storyboard */,
 				F96C0B982141718700F17287 /* Info.plist */,
@@ -132,9 +132,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F96C0B972141718700F17287 /* LaunchScreen.storyboard in Resources */,
-				F96C0B9F2141729A00F17287 /* Unsplash.bundle in Resources */,
 				F96C0B942141718700F17287 /* Assets.xcassets in Resources */,
 				F96C0B922141718400F17287 /* Main.storyboard in Resources */,
+				37A41BED214B5826009C0EFB /* Images.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,6 +293,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XDN35K5RF2;
 				INFOPLIST_FILE = Gallery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -310,6 +311,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = XDN35K5RF2;
 				INFOPLIST_FILE = Gallery/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

@@ -12,9 +12,9 @@ internal final class GalleryViewContrller: UIViewController {
     @IBOutlet weak var galleryView: GalleryView!
     
     private lazy var data: [UIImage] = {
-        let bundlePath = Bundle(for: type(of: self)).path(forResource: "Unsplash", ofType: "bundle")!
+        let bundlePath = Bundle(for: type(of: self)).path(forResource: "Images", ofType: "bundle")!
         let bundle = Bundle(path: bundlePath)!
-        let images = (0...10).map({ UIImage(named: "unsplash-\($0).jpg", in: bundle, compatibleWith: nil) })
+        let images = (0...10).map({ UIImage(named: "image-\($0).jpg", in: bundle, compatibleWith: nil) })
         return images.compactMap({ $0 })
     }()
 

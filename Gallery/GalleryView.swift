@@ -130,8 +130,9 @@ open class GalleryView: UIView {
         let longPress = UILongPressGestureRecognizer(target: self, action: #selector(onLongPress(sender:)))
         addGestureRecognizer(longPress)
         
-        panGesture = UIPanGestureRecognizer(target: self, action: #selector(onPan(sender:)))
-        addGestureRecognizer(panGesture)
+        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan(sender:)))
+        panGestureRecognizer.delegate = self
+        addGestureRecognizer(panGestureRecognizer)
     }
     
     private func reloadData() {
@@ -150,10 +151,10 @@ open class GalleryView: UIView {
     
     private var reusableCells: [GalleryViewCell] = []
 
-    private var panGesture: UIPanGestureRecognizer!
+    private var panGestureRecognizer: UIPanGestureRecognizer!
     open var disablePanToDismiss: Bool = false {
         didSet {
-            panGesture.isEnabled = !disablePanToDismiss
+            panGestureRecognizer.isEnabled = !disablePanToDismiss
         }
     }
 }
@@ -208,6 +209,7 @@ extension GalleryView: UIScrollViewDelegate {
         one.frame = rect
         one.index = index
         if nil == one.superview {
+            one.scrollView.panGestureRecognizer.require(toFail: panGestureRecognizer)
             scrollView.addSubview(one)
             reusableCells.append(one)
         }
@@ -272,5 +274,30 @@ private extension GalleryView {
             self.scrollView.transform = .identity
             self.backgroundView.alpha = 1
         }
+    }
+}
+
+extension GalleryView: UIGestureRecognizerDelegate {
+    override open func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == panGestureRecognizer {
+            let velocity = panGestureRecognizer.velocity(in: panGestureRecognizer.view)
+            if fabs(velocity.y) > fabs(velocity.x), let cell = loadedCell(of: currentPage), cell.scrollView.zoomScale == 1.0, !cell.scrollView.isDragging, !cell.scrollView.isDecelerating {
+                let contentHeight = cell.scrollView.contentSize.height
+                let boundsHeight = cell.scrollView.bounds.size.height
+                let offsetY = cell.scrollView.contentOffset.y
+                if contentHeight > boundsHeight {
+                    if offsetY <= 0 {
+                        return velocity.y > 250
+                    }
+                    if offsetY + boundsHeight >= contentHeight {
+                        return velocity.y < -250
+                    }
+                } else {
+                    return true
+                }
+            }
+            return false
+        }
+        return super.gestureRecognizerShouldBegin(gestureRecognizer)
     }
 }
